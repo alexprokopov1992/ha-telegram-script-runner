@@ -3,6 +3,7 @@
   "name": "Telegram Script Runner",
   "version": "0.1.0",
   "documentation": "https://example.local",
+  "requirements": ["python-telegram-bot==21.6"],
   "codeowners": [],
   "config_flow": true,
   "iot_class": "local_push"
