@@ -1,0 +1,5 @@
+{
+  "name": "Telegram Script Runner",
+  "content_in_root": false,
+  "domains": ["tg_script_runner"]
+}
