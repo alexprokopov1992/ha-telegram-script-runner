@@ -29,26 +29,45 @@ def _parse_allowed_users(raw: str) -> set[int]:
 
 def _parse_command_map(raw: str) -> dict[str, str]:
     """
-    Lines:
-      /away=script.away_mode
-      /pc_off=script.pc_off
+    Accepts:
+      - multiline text:
+          /pc_on=script.turn_on_pc
+          /pc_off=script.shutdown_pc
+      - single line with literal \n:
+          /pc_on=script.turn_on_pc\n/pc_off=script.shutdown_pc
+      - single line separated by ';':
+          /pc_on=script.turn_on_pc; /pc_off=script.shutdown_pc
     """
     raw = (raw or "").strip()
     if not raw:
         return {}
-    m: dict[str, str] = {}
+
+    # If user typed "\n" literally in a single-line field, convert it to real newlines
+    raw = raw.replace("\\n", "\n")
+
+    # Split into "lines", and additionally allow ';' as separator inside a line
+    parts: list[str] = []
     for line in raw.splitlines():
         line = line.strip()
-        if not line or line.startswith("#"):
+        if not line:
             continue
-        if "=" not in line:
+        # allow multiple mappings in one line separated by ';'
+        parts.extend([p.strip() for p in line.split(";") if p.strip()])
+
+    m: dict[str, str] = {}
+    for item in parts:
+        if not item or item.startswith("#"):
             continue
-        k, v = line.split("=", 1)
+        if "=" not in item:
+            continue
+        k, v = item.split("=", 1)
         k = k.strip()
         v = v.strip()
         if k and v:
             m[k] = v
+
     return m
+
 
 class TgCoordinator:
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry):
